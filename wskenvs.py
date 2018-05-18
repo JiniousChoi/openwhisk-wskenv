@@ -134,8 +134,8 @@ def cmd_show(args):
         return 1
     with open(wskprop) as fp:
         auth, api_host = fp.read().split()
-        print('[AUTH]', auth.lstrip('AUTH='))
         print('[API_HOST]', api_host.lstrip('APIHOST='))
+        print('[AUTH]', auth.lstrip('AUTH='))
     return 0
 
 def cmd_cd(args):
