@@ -74,8 +74,6 @@ def addCdParser(subparsers):
 
 def cmd_create(args): 
     wskenv, api_host, auth = args.wskenv, args.api_host, args.auth
-    print(args)
-
     wskenv_path = get_wskenv_path(wskenv)
     if Path(wskenv_path).exists():
         print('[ERR]', 'Exists Already')
