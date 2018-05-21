@@ -110,6 +110,17 @@ def cmd_remove(args):
         return 1
     rmtree(wskenv_path)
     print('[OK]', '{} is removed'.format(wskenv))
+
+    # activate another env if removed was activated one
+    selected = get_selected_wskenv()
+    if selected == wskenv:
+        print('Removed env was activated one.',
+              'Please activate another env in followings:\n')
+        cmd_list(None)
+    env_to_activate = input('\nenv to activate: ')
+    nargs = argparse.Namespace()
+    nargs.wskenv = env_to_activate
+    cmd_activate(nargs)
     return 0
 
 
