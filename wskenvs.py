@@ -1,12 +1,10 @@
 #!/usr/local/bin/python3
 
-
 import re
 import os
 import argparse
 from pathlib import Path
 from shutil import copyfile, rmtree
-
 
 HOME_DIR = os.path.expanduser('~')
 MAIN_WSKPROP = os.path.join(HOME_DIR, '.wskprops')
@@ -20,12 +18,12 @@ def main():
         return 1
 
     return {
-      'create' : cmd_create,
-      'remove' : cmd_remove,
-      'activate' : cmd_activate,
-      'list': cmd_list,
-      'show': cmd_show,
-      'cd' : cmd_cd
+        'create': cmd_create,
+        'remove': cmd_remove,
+        'activate': cmd_activate,
+        'list': cmd_list,
+        'show': cmd_show,
+        'cd': cmd_cd
     }[args.cmd](args)
 
 
@@ -45,34 +43,42 @@ def parseArgs():
     addCdParser(subparsers)
     return parser.parse_args()
 
+
 def addCreateParser(subparsers):
     cmd = subparsers.add_parser('create', help='create an wsk-environment')
     cmd.add_argument('wskenv', help='alias for the environment')
     cmd.add_argument('api_host', help='url or ip address')
     cmd.add_argument('auth', help='in form of `uuid:key`')
 
+
 def addRemoveParser(subparsers):
     cmd = subparsers.add_parser('remove', help='remove an wsk-environment')
     cmd.add_argument('wskenv', help='.wskprop name to activate')
+
 
 def addActivateParser(subparsers):
     cmd = subparsers.add_parser('activate', help='activate an wsk-environment')
     cmd.add_argument('wskenv', help='.wskprop name to activate')
 
+
 def addListParser(subparsers):
     cmd = subparsers.add_parser('list', help='list all the wsk-environment\'s')
 
+
 def addShowParser(subparsers):
-    cmd = subparsers.add_parser('show', help='show current wsk environment properties')
+    cmd = subparsers.add_parser(
+        'show', help='show current wsk environment properties')
+
 
 def addCdParser(subparsers):
-    cmd = subparsers.add_parser('cd', help='when you wish to get into wskenvs directory') 
+    cmd = subparsers.add_parser(
+        'cd', help='when you wish to get into wskenvs directory')
 
 
 ###### commands ######
 
 
-def cmd_create(args): 
+def cmd_create(args):
     wskenv, api_host, auth = args.wskenv, args.api_host, args.auth
     wskenv_path = get_wskenv_path(wskenv)
     if Path(wskenv_path).exists():
@@ -93,6 +99,7 @@ def cmd_create(args):
     cmd_activate(args)
     return 0
 
+
 def cmd_remove(args):
     wskenv = args.wskenv
     wskenv_path = get_wskenv_path(wskenv)
@@ -102,6 +109,7 @@ def cmd_remove(args):
     rmtree(wskenv_path)
     print('[OK]', '{} is removed'.format(wskenv))
     return 0
+
 
 def cmd_activate(args):
     wskenv = args.wskenv
@@ -118,6 +126,7 @@ def cmd_activate(args):
     print('[OK]', '{} is activated'.format(wskenv))
     return 0
 
+
 def cmd_list(args):
     wskenvs = Path(WSKENVS_DIR)
     if not wskenvs.is_dir():
@@ -126,6 +135,7 @@ def cmd_list(args):
     for prop in Path(WSKENVS_DIR).iterdir():
         print(prop.as_posix().rsplit('/')[-1])
     return 0
+
 
 def cmd_show(args):
     wskprop = Path(MAIN_WSKPROP)
@@ -137,6 +147,7 @@ def cmd_show(args):
         print('[API_HOST]', api_host.lstrip('APIHOST='))
         print('[AUTH]', auth.lstrip('AUTH='))
     return 0
+
 
 def cmd_cd(args):
     wskenvs = Path(WSKENVS_DIR)
@@ -153,26 +164,28 @@ def cmd_cd(args):
 def is_valid_url(url):
     ''' @reference https://stackoverflow.com/a/7160778 '''
     regex = re.compile(
-        r'^((?:http|ftp)s?://)?' # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
-        r'localhost|' #localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
-        r'(?::\d+)?' # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        r'^((?:http|ftp)s?://)?'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  #domain...
+        r'localhost|'  #localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$',
+        re.IGNORECASE)
     return re.match(regex, url)
+
 
 def is_valid_auth(auth):
     ''' reference https://bukkit.org/threads/best-way-to-check-if-a-string-is-a-uuid.258625/ '''
     if auth.count(':') != 1:
         return False
     uuid, key = auth.split(':')
-    uuid_regex = re.compile(
-            r'[0-9a-f]{8}-'
-            r'[0-9a-f]{4}-'
-            r'[1-5][0-9a-f]{3}-'
-            r'[89ab][0-9a-f]{3}-'
-            r'[0-9a-f]{12}')
-    return re.match(uuid_regex, uuid) and len(key)==64
+    uuid_regex = re.compile(r'[0-9a-f]{8}-'
+                            r'[0-9a-f]{4}-'
+                            r'[1-5][0-9a-f]{3}-'
+                            r'[89ab][0-9a-f]{3}-'
+                            r'[0-9a-f]{12}')
+    return re.match(uuid_regex, uuid) and len(key) == 64
+
 
 def create_wskprops(wskenv, api_host, auth):
     wskprop_path = get_wskenv_prop_path(wskenv)
@@ -182,13 +195,16 @@ def create_wskprops(wskenv, api_host, auth):
         fp.write('APIHOST={}'.format(api_host))
         fp.write(os.linesep)
 
+
 def mkdir_if_not_exist(dirname):
     if Path(dirname).exists():
         return
     os.mkdir(dirname)
 
+
 def get_wskenv_path(wskenv):
     return os.path.join(WSKENVS_DIR, wskenv)
+
 
 def get_wskenv_prop_path(wskenv):
     return os.path.join(WSKENVS_DIR, wskenv, '.wskprops')
