@@ -9,6 +9,7 @@ from shutil import copyfile, rmtree
 HOME_DIR = os.path.expanduser('~')
 MAIN_WSKPROP = os.path.join(HOME_DIR, '.wskprops')
 WSKENVS_DIR = os.path.join(HOME_DIR, '.wskenvs')
+SELECTED_WSKENV = os.path.join(HOME_DIR, '.wskenvs', '.selected')
 
 
 def main():
@@ -94,6 +95,7 @@ def cmd_create(args):
     mkdir_if_not_exist(WSKENVS_DIR)
     mkdir_if_not_exist(wskenv_path)
     create_wskprops(wskenv_path, api_host, auth)
+    update_selected_wskenv(wskenv)
     print('[OK]', '{} is created'.format(wskenv))
 
     cmd_activate(args)
@@ -123,6 +125,7 @@ def cmd_activate(args):
         print('[ERR]', '{} does NOT exists'.format(wskenv_prop_path))
         return 1
     copyfile(wskenv_prop_path, MAIN_WSKPROP)
+    update_selected_wskenv(wskenv)
     print('[OK]', '{} is activated'.format(wskenv))
     return 0
 
@@ -132,15 +135,25 @@ def cmd_list(args):
     if not wskenvs.is_dir():
         print('[ERR]', 'It is empty')
         return 1
+    selected = get_selected_wskenv()
     for prop in Path(WSKENVS_DIR).iterdir():
-        print(prop.as_posix().rsplit('/')[-1])
+        if '.selected' in prop.as_posix():
+            continue
+        env = prop.as_posix().rsplit('/')[-1]
+        if env == selected:
+            print('\033[92m{} (selected)\033[0m'.format(env))
+        else:
+            print(env)
     return 0
 
 
 def cmd_show(args):
+    selected = get_selected_wskenv()
+    if selected != '':
+        print('# {} #'.format(selected))
     wskprop = Path(MAIN_WSKPROP)
     if not wskprop.is_file():
-        print('[ERR]', '`~/.wskenvs` directory does NOT exist')
+        print('[ERR]', '`~/.wskprops` does NOT exist')
         return 1
     with open(wskprop) as fp:
         auth, api_host = fp.read().split()
@@ -208,6 +221,20 @@ def get_wskenv_path(wskenv):
 
 def get_wskenv_prop_path(wskenv):
     return os.path.join(WSKENVS_DIR, wskenv, '.wskprops')
+
+
+def update_selected_wskenv(wskenv):
+    with open(SELECTED_WSKENV, 'w') as out:
+        out.write(wskenv + '\n')
+
+
+def get_selected_wskenv():
+    selected = Path(SELECTED_WSKENV)
+    if selected.is_file():
+        with open(selected) as fp:
+            return fp.read().strip()
+    else:
+        return ''
 
 
 if __name__ == "__main__":
