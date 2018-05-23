@@ -133,7 +133,11 @@ def cmd_list(args):
         print('[ERR]', 'It is empty')
         return 1
     for prop in Path(WSKENVS_DIR).iterdir():
-        print(prop.as_posix().rsplit('/')[-1])
+        alias = prop.as_posix().rsplit('/')[-1]
+        if is_active(alias):
+            print('* {}'.format(alias))
+        else:
+            print('  {}'.format(alias))
     return 0
 
 
@@ -142,7 +146,7 @@ def cmd_show(args):
     if not wskprop.is_file():
         print('[ERR]', '`~/.wskenvs` directory does NOT exist')
         return 1
-    props = parse_props(wskprop)
+    props = parse_props(MAIN_WSKPROP)
     print('[ALIAS]', props.get('ALIAS', 'Unknown'))
     print('[API_HOST]', props['APIHOST'])
     print('[AUTH]', props['AUTH'])
@@ -217,9 +221,19 @@ def parse_props(wskprop):
     props = {}
     with open(wskprop) as fp:
         for line in fp:
-            key,val = line.strip().split('=')
+            key, val = line.strip().split('=')
             props[key] = val
     return props
+
+
+def is_active(alias):
+    if not alias:
+        return False
+    props = parse_props(MAIN_WSKPROP)
+    active_wskenv = props.get('ALIAS', None)
+    if not active_wskenv:
+        return False
+    return alias == active_wskenv
 
 
 if __name__ == "__main__":
