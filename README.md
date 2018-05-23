@@ -72,10 +72,9 @@ a CLI-based tool for managing multiple `.wskprops` of wsk command
     [OK] frisb-guest is activated
   ```
 
-- Whenever not sure on what environment you are
+- Got lost? list command shows on what environment you are in git-branch style
   ```
-  $ wskenv.py show
-    [NAME] frisb-guest
-    [HOST] https://frisb.kakao.com
-    [AUTH] df250ac1-d32e-4172-8566-5743b16ecfda:akXi2WpnTlWv47LiG4VAaH14A22AF7T3MiDeOfrzaqDKGFDh7v8R4NxIMVq4wzbC
+  $ wskenv.py list
+  * frisb-guest
+    local-guest
   ```
