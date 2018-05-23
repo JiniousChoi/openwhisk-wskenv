@@ -9,7 +9,6 @@ from shutil import copyfile, rmtree
 HOME_DIR = os.path.expanduser('~')
 MAIN_WSKPROP = os.path.join(HOME_DIR, '.wskprops')
 WSKENVS_DIR = os.path.join(HOME_DIR, '.wskenvs')
-ACTIVATED_WSKENV = os.path.join(HOME_DIR, '.wskenvs', '.activated')
 
 
 def main():
@@ -94,8 +93,7 @@ def cmd_create(args):
 
     mkdir_if_not_exist(WSKENVS_DIR)
     mkdir_if_not_exist(wskenv_path)
-    create_wskprops(wskenv_path, api_host, auth)
-    update_activated_wskenv(wskenv)
+    create_wskprops(wskenv_path, wskenv, api_host, auth)
     print('[OK]', '{} is created'.format(wskenv))
 
     cmd_activate(args)
@@ -110,17 +108,6 @@ def cmd_remove(args):
         return 1
     rmtree(wskenv_path)
     print('[OK]', '{} is removed'.format(wskenv))
-
-    # activate another env if removed was activated one
-    activated = get_activated_wskenv()
-    if activated == wskenv:
-        print('Removed env was activated one.',
-              'Please activate another env in followings:\n')
-        cmd_list(None)
-    env_to_activate = input('\nenv to activate: ')
-    nargs = argparse.Namespace()
-    nargs.wskenv = env_to_activate
-    cmd_activate(nargs)
     return 0
 
 
@@ -136,7 +123,6 @@ def cmd_activate(args):
         print('[ERR]', '{} does NOT exists'.format(wskenv_prop_path))
         return 1
     copyfile(wskenv_prop_path, MAIN_WSKPROP)
-    update_activated_wskenv(wskenv)
     print('[OK]', '{} is activated'.format(wskenv))
     return 0
 
@@ -146,30 +132,21 @@ def cmd_list(args):
     if not wskenvs.is_dir():
         print('[ERR]', 'It is empty')
         return 1
-    activated = get_activated_wskenv()
     for prop in Path(WSKENVS_DIR).iterdir():
-        if '.activated' in prop.as_posix():
-            continue
-        env = prop.as_posix().rsplit('/')[-1]
-        if env == activated:
-            print('\033[92m{} (activated)\033[0m'.format(env))
-        else:
-            print(env)
+        print(prop.as_posix().rsplit('/')[-1])
     return 0
 
 
 def cmd_show(args):
-    activated = get_activated_wskenv()
-    if activated != '':
-        print('# {} #'.format(activated))
     wskprop = Path(MAIN_WSKPROP)
     if not wskprop.is_file():
-        print('[ERR]', '`~/.wskprops` does NOT exist')
+        print('[ERR]', '`~/.wskenvs` directory does NOT exist')
         return 1
-    with open(wskprop) as fp:
-        auth, api_host = fp.read().split()
-        print('[API_HOST]', api_host.lstrip('APIHOST='))
-        print('[AUTH]', auth.lstrip('AUTH='))
+    props = parse_props(wskprop)
+    print('[ALIAS]', props.get('ALIAS', 'Unknown'))
+    print('[API_HOST]', props['APIHOST'])
+    print('[AUTH]', props['AUTH'])
+
     return 0
 
 
@@ -211,9 +188,11 @@ def is_valid_auth(auth):
     return re.match(uuid_regex, uuid) and len(key) == 64
 
 
-def create_wskprops(wskenv, api_host, auth):
-    wskprop_path = get_wskenv_prop_path(wskenv)
+def create_wskprops(wskenv_path, alias, api_host, auth):
+    wskprop_path = get_wskenv_prop_path(wskenv_path)
     with open(wskprop_path, 'w') as fp:
+        fp.write('ALIAS={}'.format(alias))
+        fp.write(os.linesep)
         fp.write('AUTH={}'.format(auth))
         fp.write(os.linesep)
         fp.write('APIHOST={}'.format(api_host))
@@ -234,18 +213,13 @@ def get_wskenv_prop_path(wskenv):
     return os.path.join(WSKENVS_DIR, wskenv, '.wskprops')
 
 
-def update_activated_wskenv(wskenv):
-    with open(ACTIVATED_WSKENV, 'w') as out:
-        out.write(wskenv + '\n')
-
-
-def get_activated_wskenv():
-    activated = Path(ACTIVATED_WSKENV)
-    if activated.is_file():
-        with open(activated) as fp:
-            return fp.read().strip()
-    else:
-        return ''
+def parse_props(wskprop):
+    props = {}
+    with open(wskprop) as fp:
+        for line in fp:
+            key,val = line.strip().split('=')
+            props[key] = val
+    return props
 
 
 if __name__ == "__main__":
