@@ -147,9 +147,9 @@ def cmd_show(args):
         print('[ERR]', '`~/.wskenvs` directory does NOT exist')
         return 1
     props = parse_props(MAIN_WSKPROP)
-    print('[ALIAS]', props.get('ALIAS', 'Unknown'))
-    print('[API_HOST]', props['APIHOST'])
-    print('[AUTH]', props['AUTH'])
+    print('  [NAME]', props.get('ALIAS', 'Unknown'))
+    print('  [HOST]', props['APIHOST'])
+    print('  [AUTH]', props['AUTH'])
 
     return 0
 
