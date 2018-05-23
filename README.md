@@ -24,7 +24,7 @@ a CLI-based tool for managing multiple `.wskprops` of wsk command
 - List all wsk environments created so far
   ``` 
   $ wskenv.py list
-  [ERR] It is empty
+    [ERR] It is empty
   ```
 
 - Create wsk environments
@@ -42,13 +42,13 @@ a CLI-based tool for managing multiple `.wskprops` of wsk command
   ```
   ```
   $ wskenv.py create frisb-guest https://frisb.kakao.com df250ac1-d32e-4172-8566-5743b16ecfda:akXi2WpnTlWv47LiG4VAaH14A22AF7T3MiDeOfrzaqDKGFDh7v8R4NxIMVq4wzbC
-  [OK] frisb-guest is created
-  [OK] frisb-guest is activated
+    [OK] frisb-guest is created
+    [OK] frisb-guest is activated
   ```
   ```
   $ wskenv.py create local-guest 192.168.33.16 03c4ef38-3a25-4595-ab98-0c3060f5b329:4VO7AkkUNtBDdJCUL8VCbiuzdA5UukCLCfgLL4fiT8J3eII1HeBIzs3vDAAm5UDr
-  [OK] local-guest is created
-  [OK] local-guest is activated
+    [OK] local-guest is created
+    [OK] local-guest is activated
   ```
 
 - List all wsk environments
@@ -69,7 +69,7 @@ a CLI-based tool for managing multiple `.wskprops` of wsk command
 - Activate another wsk environment
   ```
   $ wskenv.py activate frisb-guest
-  [OK] frisb-guest is activated
+    [OK] frisb-guest is activated
   ```
 
 - Whenever not sure on what environment you are
