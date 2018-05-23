@@ -82,19 +82,19 @@ def cmd_create(args):
     wskenv, api_host, auth = args.wskenv, args.api_host, args.auth
     wskenv_path = get_wskenv_path(wskenv)
     if Path(wskenv_path).exists():
-        print('[ERR]', 'Exists Already')
+        print('  [ERR]', 'Exists Already')
         return 1
     if not is_valid_url(api_host):
-        print('[ERR]', 'api_host `{}` is invalid'.format(api_host))
+        print('  [ERR]', 'api_host `{}` is invalid'.format(api_host))
         return 1
     if not is_valid_auth(auth):
-        print('[ERR]', 'auth `{}` is invalid'.format(auth))
+        print('  [ERR]', 'auth `{}` is invalid'.format(auth))
         return 1
 
     mkdir_if_not_exist(WSKENVS_DIR)
     mkdir_if_not_exist(wskenv_path)
     create_wskprops(wskenv_path, wskenv, api_host, auth)
-    print('[OK]', '{} is created'.format(wskenv))
+    print('  [OK]', '{} is created'.format(wskenv))
 
     cmd_activate(args)
     return 0
@@ -104,10 +104,10 @@ def cmd_remove(args):
     wskenv = args.wskenv
     wskenv_path = get_wskenv_path(wskenv)
     if not Path(wskenv_path).exists():
-        print('[ERR]', '{} does NOT exists'.format(wskenv))
+        print('  [ERR]', '{} does NOT exists'.format(wskenv))
         return 1
     rmtree(wskenv_path)
-    print('[OK]', '{} is removed'.format(wskenv))
+    print('  [OK]', '{} is removed'.format(wskenv))
     return 0
 
 
@@ -117,20 +117,20 @@ def cmd_activate(args):
     wskenv_prop_path = get_wskenv_prop_path(wskenv)
 
     if not Path(wskenv_path).exists():
-        print('[ERR]', '{} does NOT exists'.format(wskenv))
+        print('  [ERR]', '{} does NOT exists'.format(wskenv))
         return 1
     if not Path(wskenv_prop_path).exists():
-        print('[ERR]', '{} does NOT exists'.format(wskenv_prop_path))
+        print('  [ERR]', '{} does NOT exists'.format(wskenv_prop_path))
         return 1
     copyfile(wskenv_prop_path, MAIN_WSKPROP)
-    print('[OK]', '{} is activated'.format(wskenv))
+    print('  [OK]', '{} is activated'.format(wskenv))
     return 0
 
 
 def cmd_list(args):
     wskenvs = Path(WSKENVS_DIR)
     if not wskenvs.is_dir():
-        print('[ERR]', 'It is empty')
+        print('  [ERR]', 'It is empty')
         return 1
     for prop in Path(WSKENVS_DIR).iterdir():
         alias = prop.as_posix().rsplit('/')[-1]
@@ -144,7 +144,7 @@ def cmd_list(args):
 def cmd_show(args):
     wskprop = Path(MAIN_WSKPROP)
     if not wskprop.is_file():
-        print('[ERR]', '`~/.wskenvs` directory does NOT exist')
+        print('  [ERR]', '`~/.wskenvs` directory does NOT exist')
         return 1
     props = parse_props(MAIN_WSKPROP)
     print('  [NAME]', props.get('ALIAS', 'Unknown'))
@@ -157,7 +157,7 @@ def cmd_show(args):
 def cmd_cd(args):
     wskenvs = Path(WSKENVS_DIR)
     if not wskenvs.is_dir():
-        print('[ERR]', '`~/.wskenvs` directory does NOT exist')
+        print('  [ERR]', '`~/.wskenvs` directory does NOT exist')
         return 1
     print('cd', WSKENVS_DIR)
     return 0
