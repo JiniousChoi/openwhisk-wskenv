@@ -68,6 +68,7 @@ def addListParser(subparsers):
 def addShowParser(subparsers):
     cmd = subparsers.add_parser(
         'show', help='show current wsk environment properties')
+    cmd.add_argument('wskenv', nargs='?', default=None, help='omissible')
 
 
 def addCdParser(subparsers):
@@ -142,11 +143,20 @@ def cmd_list(args):
 
 
 def cmd_show(args):
-    wskprop = Path(MAIN_WSKPROP)
-    if not wskprop.is_file():
-        print('  [ERR]', '`~/.wskenvs` directory does NOT exist')
-        return 1
-    props = parse_props(MAIN_WSKPROP)
+    wskenv = args.wskenv
+    if wskenv:
+        wskenv_dir = Path(os.path.join(WSKENVS_DIR, wskenv))
+        if not wskenv_dir.is_dir():
+            print('  [ERR]', '{} does NOT exist'.format(wskenv_dir.as_posix().split('/')[-1]))
+            return 1
+        wskenv_prop = os.path.join(wskenv_dir, '.wskprops')
+        props = parse_props(wskenv_prop)
+    else:
+        wskprop = Path(MAIN_WSKPROP)
+        if not wskprop.is_file():
+            print('  [ERR]', '`~/.wskenvs` directory does NOT exist')
+            return 1
+        props = parse_props(MAIN_WSKPROP)
     print('  [NAME]', props.get('ALIAS', 'Unknown'))
     print('  [HOST]', props['APIHOST'])
     print('  [AUTH]', props['AUTH'])
