@@ -61,9 +61,15 @@ a CLI-based tool for managing multiple `.wskprops` of wsk command
 - Check out currently active wsk environment in detail
   ```
   $ wskenv.py show
-    [NAME] frisb-guest
+    [NAME] local-guest
     [HOST] 192.168.33.16
     [AUTH] 03c4ef38-3a25-4595-ab98-0c3060f5b329:4VO7AkkUNtBDdJCUL8VCbiuzdA5UukCLCfgLL4fiT8J3eII1HeBIzs3vDAAm5UDr
+    
+  $ wskenv.py show frisb-guest
+    [NAME] frisb-guest
+    [HOST] https://frisb.kakao.com
+    [AUTH] df250ac1-d32e-4172-8566-5743b16ecfda:akXi2WpnTlWv47LiG4VAaH14A22AF7T3MiDeOfrzaqDKGFDh7v8R4NxIMVq4wzbC
+    
   ```
 
 - Activate another wsk environment
